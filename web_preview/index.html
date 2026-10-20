@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TV Master Service Remote | Universal IR Technician Remote</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ffb300">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Smartphone Frame -->
+    <main class="remote-device">
+      <!-- Status Header -->
+      <header class="remote-header">
+        <div class="header-status">
+          <span class="status-pulse"></span>
+          <span class="status-text" id="irStatusText">IR BLASTER READY</span>
+        </div>
+        <div class="brand-dropdown-container">
+          <select id="brandSelect" class="brand-select">
+            <option value="lg">LG (WebOS / OLED / LED)</option>
+            <option value="samsung">Samsung (Tizen / QLED)</option>
+            <option value="china_universal" selected>China Universal (MStar / RTD / CVTE)</option>
+            <option value="sony">Sony Bravia (Google TV)</option>
+            <option value="tcl">TCL / Thomson / iFFALCON</option>
+            <option value="philips">Philips (SAM / CSM)</option>
+            <option value="panasonic">Panasonic (Viera)</option>
+            <option value="xiaomi">Xiaomi / Mi / Redmi</option>
+          </select>
+        </div>
+      </header>
+
+      <!-- Technician Master Service Action Bar -->
+      <section class="master-technician-bar">
+        <button id="btnOpenServiceHub" class="btn-service-mode">
+          <div class="btn-glow"></div>
+          <div class="btn-content">
+            <span class="icon-bolt">⚡</span>
+            <div class="text-group">
+              <span class="title">SERVICE MODE (FACTORY MENU)</span>
+              <span class="subtitle">Discrete IR Keys • 1-Tap Macros • Mirror Fix</span>
+            </div>
+          </div>
+        </button>
+
+        <div class="quick-tools-row">
+          <button id="btnOpenBoardLookup" class="tool-btn cyan-btn">
+            <span>🔍 BOARD LOOKUP</span>
+          </button>
+          <button id="btnOpenHexInjector" class="tool-btn purple-btn">
+            <span>⚡ HEX INJECTOR</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Macro Execution Live Indicator Banner -->
+      <div id="macroProgressBanner" class="macro-progress-banner hidden">
+        <div class="macro-progress-content">
+          <span class="macro-anim-dot"></span>
+          <span id="macroStepText">Sending: INPUT</span>
+          <span id="macroCountText">[1/5]</span>
+        </div>
+        <div class="progress-bar-track">
+          <div id="macroProgressBar" class="progress-bar-fill"></div>
+        </div>
+      </div>
+
+      <!-- Real-Time Signal Scope / Transmission Feedback -->
+      <section class="signal-scope">
+        <div class="scope-header">
+          <span class="label">TRANSMITTED IR PULSE STREAM (38 kHz)</span>
+          <span class="freq-tag" id="scopeFreq">38.0 kHz</span>
+        </div>
+        <div class="scope-display" id="scopeDisplay">
+          <span class="placeholder-text">Press any remote button or service macro...</span>
+        </div>
+      </section>
+
+      <!-- Standard Physical TV Remote Faceplate -->
+      <section class="remote-faceplate">
+        <!-- Power, Source, Mute -->
+        <div class="top-row">
+          <button class="round-btn power-btn" data-key="POWER" title="Power">⏻</button>
+          <button class="pill-btn source-btn" data-key="INPUT">SOURCE</button>
+          <button class="round-btn mute-btn" data-key="MUTE" title="Mute">🔇</button>
+        </div>
+
+        <!-- D-Pad Navigation Controller -->
+        <div class="dpad-container">
+          <div class="dpad-disc">
+            <button class="dpad-btn up" data-key="UP">▲</button>
+            <button class="dpad-btn down" data-key="DOWN">▼</button>
+            <button class="dpad-btn left" data-key="LEFT">◄</button>
+            <button class="dpad-btn right" data-key="RIGHT">►</button>
+            <button class="dpad-ok" data-key="OK">OK</button>
+          </div>
+        </div>
+
+        <!-- Back, Home, Menu -->
+        <div class="nav-row">
+          <button class="nav-btn" data-key="BACK">BACK</button>
+          <button class="nav-btn" data-key="HOME">HOME</button>
+          <button class="nav-btn" data-key="MENU">MENU</button>
+        </div>
+
+        <!-- Volume & Channel Rockers -->
+        <div class="rockers-row">
+          <div class="rocker-column">
+            <button class="rocker-btn" data-key="VOL_UP">+</button>
+            <span class="rocker-label">VOL</span>
+            <button class="rocker-btn" data-key="VOL_DOWN">-</button>
+          </div>
+          <div class="rocker-column">
+            <button class="rocker-btn" data-key="CH_UP">▲</button>
+            <span class="rocker-label">CH</span>
+            <button class="rocker-btn" data-key="CH_DOWN">▼</button>
+          </div>
+        </div>
+
+        <!-- Numeric Keypad Accordion -->
+        <div class="numpad-wrapper">
+          <div class="numpad-toggle" id="numpadToggle">
+            <span>NUMERIC KEYPAD (0-9)</span>
+            <span id="numpadArrow">▼</span>
+          </div>
+          <div class="numpad-grid" id="numpadGrid">
+            <button class="num-btn" data-key="DIGIT_1">1</button>
+            <button class="num-btn" data-key="DIGIT_2">2</button>
+            <button class="num-btn" data-key="DIGIT_3">3</button>
+            <button class="num-btn" data-key="DIGIT_4">4</button>
+            <button class="num-btn" data-key="DIGIT_5">5</button>
+            <button class="num-btn" data-key="DIGIT_6">6</button>
+            <button class="num-btn" data-key="DIGIT_7">7</button>
+            <button class="num-btn" data-key="DIGIT_8">8</button>
+            <button class="num-btn" data-key="DIGIT_9">9</button>
+            <button class="num-btn num-zero" data-key="DIGIT_0">0</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Side Panel / Desktop Guide -->
+    <aside class="desktop-side-panel">
+      <div class="panel-card">
+        <h3>⚡ TV Technician Pro Guide</h3>
+        <p>This software is built specifically for TV service engineers & repair technicians (as popularized by technicians in Mumbai's Lamington Road / electronic markets).</p>
+        
+        <div class="feature-item">
+          <strong>1. Discrete IR Codes (Direct Factory Keys):</strong>
+          <p>Buttons like LG <code>IN-START</code> or Samsung <code>FACTORY</code> transmit single discrete unmapped IR commands that ordinary consumer remotes cannot send.</p>
+        </div>
+
+        <div class="feature-item">
+          <strong>2. Automated Fast-Paced Macros:</strong>
+          <p>Sequences like <code>MENU + 1 1 4 7</code> or <code>INPUT + 2 5 8 0</code> are transmitted with precise 280ms burst pacing so Chinese boards never miss a digit.</p>
+        </div>
+
+        <div class="feature-item">
+          <strong>3. Panel Mirror & LVDS Inversion Fix:</strong>
+          <p>When installing a replacement motherboard on an LED TV, the image is often upside-down (mirrored) or colors are negative (solarized). The Service Mode Hub allows technicians to toggle these parameters in 5 seconds.</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- MODAL 1: SERVICE MODE HUB -->
+  <div class="modal-overlay hidden" id="serviceModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <h2>⚡ SERVICE MODE HUB</h2>
+          <span class="modal-subtitle" id="serviceModalSubtitle">LG Electronics (WebOS / OLED / LED)</span>
+        </div>
+        <button class="modal-close" id="btnCloseServiceModal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Discrete Buttons Section -->
+        <div class="modal-section" id="discreteSection">
+          <span class="section-title">DISCRETE SERVICE KEYS (PHYSICAL IR PULSE)</span>
+          <div class="discrete-grid" id="discreteButtonsGrid"></div>
+        </div>
+
+        <!-- Automated Macros Section -->
+        <div class="modal-section" id="macrosSection">
+          <span class="section-title">ONE-TAP AUTOMATED MACROS</span>
+          <div class="macros-list" id="macrosList"></div>
+        </div>
+
+        <!-- Default Factory PINs -->
+        <div class="modal-section" id="pinsSection">
+          <span class="section-title">COMMON FACTORY SERVICE PINS</span>
+          <div class="pins-row" id="pinsRow"></div>
+        </div>
+
+        <!-- Technician Instructions -->
+        <div class="modal-section">
+          <span class="section-title">TECHNICIAN INSTRUCTIONS</span>
+          <div class="instructions-box" id="instructionsBox"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: CHINESE MOTHERBOARD LOOKUP -->
+  <div class="modal-overlay hidden" id="boardModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <h2>🔍 CHINESE MOTHERBOARD DATABASE</h2>
+          <span class="modal-subtitle">Find Service Codes by PCB Model Number</span>
+        </div>
+        <button class="modal-close" id="btnCloseBoardModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="boardSearchInput" class="search-input" placeholder="Search (e.g. TP.MS338, CV338, V59, 56, RTD)...">
+        <div class="boards-catalog" id="boardsCatalog"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: RAW PRONTO HEX INJECTOR -->
+  <div class="modal-overlay hidden" id="hexModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <h2>⚡ RAW PRONTO HEX INJECTOR</h2>
+          <span class="modal-subtitle">Inject Philips Pronto Hex / Forum Codes</span>
+        </div>
+        <button class="modal-close" id="btnCloseHexModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <textarea id="hexInputArea" class="hex-textarea" placeholder="Paste Pronto Hex string here...&#10;Example:&#10;0000 006d 0022 0002 0155 00aa 0015 ..."></textarea>
+        <div class="hex-stats" id="hexStats">Ready to decode.</div>
+        <button id="btnTransmitHex" class="action-btn-primary">TRANSMIT VIA IR BLASTER</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

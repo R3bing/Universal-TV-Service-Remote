@@ -1,0 +1,30 @@
+name: "📺 Submit New Motherboard / Service Code"
+description: "Submit a new TV brand, Chinese motherboard model, or factory menu sequence"
+title: "[Code]: "
+labels: ["enhancement", "database"]
+body:
+  - type: markdown
+    attributes:
+      value: "Thank you for contributing new service menu codes! Please fill out the details below."
+  - type: input
+    id: brand_board
+    attributes:
+      label: TV Brand or Motherboard Model
+      description: e.g. Samsung, LG, TP.MS338.PC821, CV338H-A42, etc.
+      placeholder: "e.g. TP.MS358.PB801"
+    validations:
+      required: true
+  - type: input
+    id: sequence
+    attributes:
+      label: Service Menu Access Sequence
+      description: What buttons enter the service/design menu?
+      placeholder: "e.g. Menu + 1 1 4 7 or Source + 2 5 8 0"
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Additional Information / Known Features
+      description: Does this chassis allow panel mirroring, LVDS map change, or firmware flash?
+      placeholder: "Allows changing LVDS bit format and Mirror enable under Panel Setting."

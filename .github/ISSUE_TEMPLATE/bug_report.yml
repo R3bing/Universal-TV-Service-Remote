@@ -1,0 +1,34 @@
+name: "🐛 Bug Report"
+description: "Create a report to help us fix an issue or crashing bug"
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for reporting an issue! Please provide as much detail as possible."
+  - type: input
+    id: device
+    attributes:
+      label: Phone Model & Android Version
+      description: e.g. Poco F5, Android 14 / HyperOS, Redmi Note 12
+      placeholder: "e.g. Xiaomi 13 Pro, Android 14"
+    validations:
+      required: true
+  - type: dropdown
+    id: ir_hardware
+    attributes:
+      label: IR Blaster Hardware
+      options:
+        - "Built-in Phone IR Blaster"
+        - "External 3.5mm IR Dongle"
+        - "External USB-C IR Adapter"
+        - "No IR Hardware (Browsing/Guide Only)"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the Bug
+      description: A clear and concise description of what happened.
+    validations:
+      required: true
